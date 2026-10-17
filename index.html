@@ -228,12 +228,39 @@ input[type=range]{width:100%;accent-color:var(--accent);height:36px}
 .empty .big{font-size:46px;display:block;margin-bottom:8px}
 .rlist .day{border-color:var(--line)}
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:800;font-size:14px;z-index:60;animation:up .2s}
+/* ---------- дни × хранения ---------- */
+.slots{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px}
+.sl-row{display:grid;grid-template-columns:1.3fr repeat(3,1fr);gap:6px;align-items:center;margin-bottom:6px}
+.sl-row:last-child{margin-bottom:0}
+.sl-col{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:900;padding:6px 0;border-radius:10px}
+.sl-col .em{font-size:20px}
+.sl-col:hover{background:var(--line)}
+.sl-day{text-align:left;font-weight:800;font-size:14px;padding:10px 8px;border-radius:10px;color:var(--muted)}
+.sl-day.on{color:var(--ink)}
+.sl-cell{height:44px;border-radius:12px;border:2px solid var(--line);background:var(--bg);font-weight:900;color:#fff;font-size:18px;transition:all .12s}
+.sl-cell.on{background:var(--accent);border-color:var(--accent)}
+.day-head{font-weight:900;font-size:15px;margin:18px 4px 8px;display:flex;align-items:center;gap:8px}
+.day-head::after{content:"";flex:1;height:1px;background:var(--line)}
+.ideas{margin-top:14px}
+.ideas .chip{text-decoration:none;color:var(--ink)}
+.gtotal{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px}
+.gtotal b{font-size:26px;font-weight:900}
+.gitem{align-items:flex-start}
+.gitem .box{cursor:pointer;margin-top:2px}
+.gitem .nm small+small{margin-top:2px}
+.gright{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.gright b{font-weight:900}
+.have-btn{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;border:2px solid var(--line);background:var(--bg);color:var(--muted);white-space:nowrap}
+.have-btn.on{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+.gitem.done .have-btn{opacity:1}
+.have-badge{display:inline-flex;font-size:11px;font-weight:900;color:var(--accent-ink);background:var(--accent-soft);padding:2px 8px;border-radius:999px}
 @media (min-width:520px){ .sheet{box-shadow:0 0 0 1px var(--line)} }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
 <script src="js/recipes.js"></script>
+<script src="js/recipes-more.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
