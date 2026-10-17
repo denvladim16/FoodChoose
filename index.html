@@ -254,6 +254,22 @@ input[type=range]{width:100%;accent-color:var(--accent);height:36px}
 .have-btn.on{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
 .gitem.done .have-btn{opacity:1}
 .have-badge{display:inline-flex;font-size:11px;font-weight:900;color:var(--accent-ink);background:var(--accent-soft);padding:2px 8px;border-radius:999px}
+/* ---------- бутон „смени“ и избор на ястие ---------- */
+.day-wrap{position:relative}
+.day.has-swap{padding-right:64px}
+.swap-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);margin-top:-6px;width:48px;height:54px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);font-size:20px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.swap-btn span{font-size:10px;margin-top:3px;letter-spacing:.02em}
+.swap-btn:active{transform:translateY(-50%) scale(.94)}
+.thumb.sm{width:46px;height:46px;font-size:24px}
+.cur-pick{display:flex;align-items:center;gap:12px}
+.pick-row{display:flex;gap:8px;margin-bottom:8px}
+.pick{flex:1;display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow);text-align:left;min-width:0}
+.pick .nm{flex:1;font-weight:800;min-width:0}
+.pick .nm small{display:block;color:var(--muted);font-weight:600;font-size:12px;margin:2px 0 3px}
+.delta{font-weight:900;font-size:13px;white-space:nowrap;color:var(--muted)}
+.delta.up{color:var(--promo)}
+.delta.down{color:var(--accent-2)}
+.peek{width:46px;flex:none;border-radius:14px;background:var(--card);box-shadow:var(--shadow);font-size:18px}
 @media (min-width:520px){ .sheet{box-shadow:0 0 0 1px var(--line)} }
 </style>
 </head>

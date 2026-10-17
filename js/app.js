@@ -668,12 +668,68 @@
     const mine = S.prefs.moods.filter((m) => tags.includes(m));
     const mood = mine.length ? mine[i % mine.length] : tags.find((t) => MOOD[t]);
     const m = MOOD[mood];
-    return `<button class="day" data-open="${r.id}" data-idx="${swappable ? i : ''}">
+    const card = `<button class="day ${swappable ? 'has-swap' : ''}" data-open="${r.id}" data-idx="${swappable ? i : ''}">
       <span class="thumb" style="background:${TINTS[(r.id.length + i) % TINTS.length]}">${r.e}</span>
       <span class="info"><span class="tiny">${label}</span><h3>${esc(r.name)}</h3>
         ${m ? `<span class="tag" style="background:${m.bg}">${m.n}</span>` : ''}${c.promoCount ? `<span class="promo-badge">🏷 ${c.promoCount} в промо</span>` : ''}${c.brCount ? ` <span class="br-badge">📰 ${c.brCount}</span>` : ''}
         <span class="meta"><span>⏱ ${r.time} мин</span><span>👥 ${S.prefs.people}</span><span>≈ ${money(c.total)}</span></span></span>
     </button>`;
+    if (!swappable) return card;
+    return `<div class="day-wrap">${card}<button class="swap-btn" data-swap="${i}" aria-label="Смени ястието" title="Смени ястието">↻<span>смени</span></button></div>`;
+  }
+
+  // ---------- смяна на ястие: избор ----------
+  function openSwapPicker(idx) {
+    const slot = S.plan[idx];
+    const cur = byId(slot.rid);
+    const store = S.prefs.store;
+    const used = new Set(S.plan.map((p) => p.rid));
+    const base = shoppingTotal(store);
+    const cands = poolFor(slot.meal)
+      .filter((r) => !used.has(r.id))
+      .map((r) => {
+        const test = S.plan.map((p, i) => (i === idx ? { ...p, rid: r.id } : p));
+        const c = recipeCost(r);
+        return { r, c, delta: shoppingTotal(store, test) - base };
+      })
+      // първо тези с повече продукти в промоция, после по-евтините
+      .sort((a, b) => b.c.promoShare - a.c.promoShare || a.delta - b.delta);
+    let q = '';
+    const sh = document.createElement('div');
+    sh.className = 'sheet';
+    const list = () => {
+      const f = q.trim().toLowerCase();
+      const rows = cands.filter((x) => !f || x.r.name.toLowerCase().includes(f) || x.r.ing.some(([id]) => ING[id].n.toLowerCase().includes(f)));
+      return rows.length
+        ? rows.map((x) => `<div class="pick-row">
+            <button class="pick" data-pick="${x.r.id}"><span class="thumb sm" style="background:${TINTS[x.r.id.length % TINTS.length]}">${x.r.e}</span>
+              <span class="nm">${esc(x.r.name)}<small>⏱ ${x.r.time} мин · ${x.r.kcal} ккал · ≈ ${money(x.c.total)}</small>
+              ${x.c.promoCount ? `<span class="promo-badge">🏷 ${x.c.promoCount} в промо</span>` : ''}</span>
+              <span class="delta ${x.delta > 0.005 ? 'up' : x.delta < -0.005 ? 'down' : ''}">${x.delta > 0.005 ? '+' : x.delta < -0.005 ? '−' : '±'}${money(Math.abs(x.delta))}</span></button>
+            <button class="peek" data-peek="${x.r.id}" aria-label="Виж рецептата">👁</button></div>`).join('')
+        : '<div class="empty">Няма такива рецепти.</div>';
+    };
+    sh.innerHTML = `<div class="sheet-top"><button class="icon-btn" data-act="close" aria-label="назад">←</button><h2>${DAYS[slot.day]} · ${MEAL[slot.meal].e} ${MEAL[slot.meal].n}</h2></div>
+      <div class="sheet-body" style="padding-top:12px">
+        <p class="tiny" style="margin:0 2px 6px">Сега</p>
+        <div class="card cur-pick"><span class="thumb sm" style="background:${TINTS[cur.id.length % TINTS.length]}">${cur.e}</span><b>${esc(cur.name)}</b></div>
+        <button class="cta" data-act="random" style="margin:14px 0">🎲 Изненадай ме</button>
+        <div class="search"><span>🔎</span><input type="search" placeholder="Търси рецепта или продукт, напр. пиле" data-q></div>
+        <p class="note">Или избери сам (${cands.length}). Вдясно е колко се променя сумата за пазаруване.</p>
+        <div id="picklist">${list()}</div>
+      </div>`;
+    document.body.appendChild(sh);
+    document.body.style.overflow = 'hidden';
+    const done = (r) => { S.plan[idx] = { ...slot, rid: r.id }; save(); closeSheet(sh); toast(`Сменено: ${r.name}`); };
+    sh.oninput = (e) => { if (e.target.dataset.q !== undefined) { q = e.target.value; $('#picklist', sh).innerHTML = list(); } };
+    sh.onclick = (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.peek) return openRecipe(b.dataset.peek);
+      if (b.dataset.pick) return done(byId(b.dataset.pick));
+      if (b.dataset.act === 'close') closeSheet(sh);
+      if (b.dataset.act === 'random') { const nr = swapMeal(idx); if (nr) { closeSheet(sh); toast(`Сменено: ${nr.name}`); } }
+    };
   }
 
   // ---------- рецепта ----------
@@ -988,6 +1044,7 @@
     const b = e.target.closest('button');
     if (!b) return;
     if (b.dataset.tab) { ui.tab = b.dataset.tab; return renderMain(); }
+    if (b.dataset.swap) return openSwapPicker(+b.dataset.swap);
     if (b.dataset.open) return openRecipe(b.dataset.open, b.dataset.idx);
     if (b.dataset.flyer) return openViewer(ui.brStore, b.dataset.flyer, +b.dataset.page || 1);
     const act = b.dataset.act;
